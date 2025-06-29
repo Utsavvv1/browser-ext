@@ -2,10 +2,19 @@
   "manifest_version": 3,
   "name": "Focus Mode Blocker",
   "version": "1.0",
-  "permissions": ["tabs", "scripting"],
-  "host_permissions": ["<all_urls>"],
+
+  "permissions": ["tabs", "scripting"],               // ✔ Needed for tab detection + code injection
+  "host_permissions": ["<all_urls>"],                 // ✔ Allows access to all sites
+
+  "web_accessible_resources": [                       // ✔ Allows popup.html, images, and JS to be iframe-injected
+    {
+      "resources": ["popup.html", "popup.js", "eye.svg", "Frame 9.svg"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js",                // ✔ Runs your logic in the background
+    "type": "module"                                  // ✔ Needed because you're using ES modules
   }
 }

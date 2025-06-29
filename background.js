@@ -52,46 +52,20 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
   // Otherwise, inject the blocking overlay
   chrome.scripting.executeScript({
-    target: { tabId },
-    func: () => {
-      const overlay = document.createElement("div");
-      overlay.style = `
-        position:fixed;top:0;left:0;width:100%;height:100%;
-        background:rgba(0,0,0,0.85);color:white;font-size:2em;
-        display:flex;align-items:center;justify-content:center;
-        z-index:999999999;
-        font-family:sans-serif;`;
+  target: { tabId },
+  func: () => {
+    if (document.getElementById('focus-popup-iframe')) return;
 
-      const box = document.createElement("div");
-      box.style = `
-        background:#1e1e1e;padding:30px;border-radius:15px;
-        text-align:center;max-width:90%;box-shadow:0 0 10px #000;
-        border:2px solid #fff;`;
-
-      const title = document.createElement("h2");
-      title.textContent = "🔒 You're in Focus Mode";
-
-      const msg = document.createElement("p");
-      msg.textContent = "Stay productive!";
-
-      const stopBtn = document.createElement("button");
-      stopBtn.textContent = "✖ Close This Tab";
-      stopBtn.style = `
-        margin-top:20px;padding:10px 20px;
-        background:red;color:white;font-size:16px;
-        border:none;border-radius:10px;cursor:pointer;`;
-
-      stopBtn.onclick = () => {
-        chrome.runtime.sendMessage({ action: "closeTab" });
-      };
-
-      box.appendChild(title);
-      box.appendChild(msg);
-      box.appendChild(stopBtn);
-      overlay.appendChild(box);
-      document.body.appendChild(overlay);
-    }
-  });
+    const iframe = document.createElement('iframe');
+    iframe.id = 'focus-popup-iframe';
+    iframe.src = chrome.runtime.getURL('popup.html');
+    iframe.style = `
+      position:fixed;top:0;left:0;width:100vw;height:100vh;
+      border:none;z-index:999999999;background:transparent;
+    `;
+    document.body.appendChild(iframe);
+  }
+});
 });
 
 // Listen for closeTab messages
