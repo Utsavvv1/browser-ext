@@ -1,8 +1,8 @@
 import { database, ref, onValue, get, set } from './firebase.js';
 import { WHITELIST_URLS } from './whitelist.js';
 
-const USER_ID = "abc123"; // Change this to your user ID
-const focusRef = ref(database, `/users/${USER_ID}/focusMode`);
+const USER_ID = "aaryan"; // Change this to your user ID
+const focusRef = ref(database, `/users/${USER_ID}/settings/focusMode`);
 
 let focusMode = false;
 
@@ -14,6 +14,15 @@ get(focusRef).then(snapshot => {
   } else {
     focusMode = snapshot.val() === true;
     console.log("Focus mode loaded:", focusMode);
+  }
+});
+
+const distractionsRef = ref(database, `/users/${USER_ID}/distractions`);
+
+get(distractionsRef).then(snapshot => {
+  if (!snapshot.exists()) {
+    console.log("Creating empty 'distractions' node...");
+    set(distractionsRef, {});
   }
 });
 
