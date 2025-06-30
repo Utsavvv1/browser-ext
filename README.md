@@ -78,7 +78,7 @@ where `{USER_ID}` is a dynamically generated 16-character hash stored in `chrome
 
 ### ⚡ Example Screenshot
 
-![Synapse Extension Screenshot](image/extension_ss.png)
+![Synapse Extension Screenshot](images/extension_ss.png)
 
 ## 💡 Future Enhancements
 
