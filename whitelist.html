@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: sans-serif;
+      min-width: 250px;
+      padding: 10px;
+    }
+    input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 8px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #eee;
+      margin: 3px 0;
+      padding: 5px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    li button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 3px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h3>Manage Whitelist Domains</h3>
+  <input type="text" id="domainInput" placeholder="e.g., youtube.com" />
+  <button id="addButton">Add Domain</button>
+  <ul id="domainList"></ul>
+  <script src="whitelist.js"></script>
+</body>
+</html>
