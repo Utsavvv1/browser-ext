@@ -1,36 +1,62 @@
 import { database, ref, onValue, get, set } from './firebase.js';
 
-const USER_ID = "aaryan";
-const focusRef = ref(database, `/users/${USER_ID}/settings/focusMode`);
+// Function to generate a 16-character hash
+function generateUserId() {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 16; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
+// Function to get or create user ID
+function getUserId(callback) {
+  chrome.storage.local.get({ userId: null }, (data) => {
+    if (data.userId) {
+      callback(data.userId);
+    } else {
+      const newUserId = generateUserId();
+      chrome.storage.local.set({ userId: newUserId }, () => {
+        callback(newUserId);
+      });
+    }
+  });
+}
 
 let focusMode = false;
 let whitelist = [];
 let blocklist = [];
 
-// Initialize focusMode
-get(focusRef).then(snapshot => {
-  if (!snapshot.exists()) {
-    console.log("Creating focusMode = false...");
-    set(focusRef, false);
-  } else {
+// Initialize focusMode and distractions using dynamic user ID
+getUserId((USER_ID) => {
+  const focusRef = ref(database, `/users/${USER_ID}/settings/focusMode`);
+  const distractionsRef = ref(database, `/users/${USER_ID}/distractions`);
+
+  // Initialize focusMode
+  get(focusRef).then(snapshot => {
+    if (!snapshot.exists()) {
+      console.log("Creating focusMode = false...");
+      set(focusRef, false);
+    } else {
+      focusMode = snapshot.val() === true;
+      console.log("Focus mode loaded:", focusMode);
+    }
+  });
+
+  // Initialize distractions node
+  get(distractionsRef).then(snapshot => {
+    if (!snapshot.exists()) {
+      console.log("Creating empty 'distractions' node...");
+      set(distractionsRef, {});
+    }
+  });
+
+  // Listen for Firebase focusMode updates
+  onValue(focusRef, snapshot => {
     focusMode = snapshot.val() === true;
-    console.log("Focus mode loaded:", focusMode);
-  }
-});
-
-// Initialize distractions node
-const distractionsRef = ref(database, `/users/${USER_ID}/distractions`);
-get(distractionsRef).then(snapshot => {
-  if (!snapshot.exists()) {
-    console.log("Creating empty 'distractions' node...");
-    set(distractionsRef, {});
-  }
-});
-
-// Listen for Firebase focusMode updates
-onValue(focusRef, snapshot => {
-  focusMode = snapshot.val() === true;
-  console.log("Focus mode updated:", focusMode);
+    console.log("Focus mode updated:", focusMode);
+  });
 });
 
 // Load whitelist and blocklist from storage
@@ -62,12 +88,16 @@ setInterval(() => {
 
     if (anyWhitelisted && !focusMode) {
       console.log("Whitelist URL detected—enabling focusMode.");
-      set(focusRef, true);
+      getUserId((USER_ID) => {
+        set(ref(database, `/users/${USER_ID}/settings/focusMode`), true);
+      });
     }
 
     if (!anyWhitelisted && focusMode) {
       console.log("No whitelist URL detected—disabling focusMode.");
-      set(focusRef, false);
+      getUserId((USER_ID) => {
+        set(ref(database, `/users/${USER_ID}/settings/focusMode`), false);
+      });
     }
   });
 }, 5000);
